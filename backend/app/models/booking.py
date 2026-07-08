@@ -7,32 +7,25 @@ class Booking(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    customer_id = Column(Integer, ForeignKey("customers.id"))
+    booking_code = Column(String, unique=True, index=True)
 
-    event_type = Column(String, nullable=False)
+    quotation_id = Column(Integer, ForeignKey("quotations.id"))
 
     venue_name = Column(String, nullable=False)
 
     venue_address = Column(String)
 
-    guest_count = Column(Integer)
-
-    budget = Column(Float)
-
     advance_paid = Column(Float, default=0)
 
-    remaining_amount = Column(Float)
-
-    event_start = Column(DateTime)
-
-    event_end = Column(DateTime)
-
     setup_start = Column(DateTime)
-
     setup_end = Column(DateTime)
 
-    teardown_start = Column(DateTime)
+    event_start = Column(DateTime)
+    event_end = Column(DateTime)
 
+    teardown_start = Column(DateTime)
     teardown_end = Column(DateTime)
 
-    status = Column(String, default="Pending")
+    booking_status = Column(String, default="Proposal")
+
+    notes = Column(String)
