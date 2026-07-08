@@ -9,6 +9,7 @@ class CustomerCreate(BaseModel):
 
 class CustomerResponse(CustomerCreate):
     id: int
+    customer_code: str
 
     class Config:
         from_attributes = True

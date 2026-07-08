@@ -6,6 +6,7 @@ class Customer(Base):
     __tablename__ = "customers"
 
     id = Column(Integer, primary_key=True, index=True)
+    customer_code = Column(String, unique=True, index=True)
 
     name = Column(String, nullable=False)
 
