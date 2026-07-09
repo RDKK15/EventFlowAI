@@ -17,6 +17,10 @@ from app.api.quotation import router as quotation_router
 from app.api.booking import router as booking_router
 from app.api.payment import router as payment_router
 
+from app.models.user import User
+
+from app.api.auth import router as auth_router
+
 app = FastAPI(title="BizPart Bot")
 
 Base.metadata.create_all(bind=engine)
@@ -27,6 +31,7 @@ app.include_router(quotation_router)
 app.include_router(booking_router)
 app.include_router(payment_router)
 app.include_router(dashboard_router)
+app.include_router(auth_router)
 
 
 @app.get("/")
