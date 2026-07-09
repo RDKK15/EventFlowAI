@@ -1,9 +1,9 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from app.models.customer import Customer
-from app.schemas.customer import CustomerCreate, CustomerUpdate 
-from app.utils.code_generator import generate_code
 
+from app.models.customer import Customer
+from app.schemas.customer import CustomerCreate, CustomerUpdate
+from app.utils.code_generator import generate_code
 
 
 def create_customer(db: Session, customer: CustomerCreate):
@@ -33,7 +33,6 @@ def create_customer(db: Session, customer: CustomerCreate):
                 detail="Email already exists."
             )
 
-    # Create customer first
     new_customer = Customer(
         name=customer.name,
         phone=customer.phone,
@@ -44,8 +43,10 @@ def create_customer(db: Session, customer: CustomerCreate):
     db.commit()
     db.refresh(new_customer)
 
-    # Generate friendly customer code
-    new_customer.customer_code = generate_code("C", new_customer.id)
+    new_customer.customer_code = generate_code(
+        "C",
+        new_customer.id
+    )
 
     db.commit()
     db.refresh(new_customer)
@@ -58,10 +59,15 @@ def get_customers(
     name: str | None = None,
     phone: str | None = None,
     email: str | None = None,
+    page: int = 1,
+    limit: int = 10,
+    sort_by: str = "id",
+    order: str = "asc",
 ):
 
     query = db.query(Customer)
 
+    # Search
     if name:
         query = query.filter(
             Customer.name.ilike(f"%{name}%")
@@ -77,9 +83,32 @@ def get_customers(
             Customer.email.ilike(f"%{email}%")
         )
 
+    # Sorting
+    allowed_columns = {
+        "id": Customer.id,
+        "name": Customer.name,
+        "phone": Customer.phone,
+    }
+
+    column = allowed_columns.get(sort_by, Customer.id)
+
+    if order.lower() == "desc":
+        query = query.order_by(column.desc())
+    else:
+        query = query.order_by(column.asc())
+
+    # Pagination
+    offset = (page - 1) * limit
+
+    query = query.offset(offset).limit(limit)
+
     return query.all()
 
-def get_customer_by_id(db: Session, customer_id: int):
+
+def get_customer_by_id(
+    db: Session,
+    customer_id: int,
+):
 
     customer = (
         db.query(Customer)
@@ -114,7 +143,6 @@ def update_customer(
             detail="Customer not found."
         )
 
-    # Check duplicate phone
     existing_phone = (
         db.query(Customer)
         .filter(
@@ -130,7 +158,6 @@ def update_customer(
             detail="Phone number already exists."
         )
 
-    # Check duplicate email
     if customer_data.email:
         existing_email = (
             db.query(Customer)

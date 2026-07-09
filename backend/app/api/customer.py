@@ -17,6 +17,9 @@ from app.services.customer_service import (
 
 router = APIRouter(prefix="/customers", tags=["Customers"])
 
+sort_by: str = "id",
+order: str = "asc",
+
 
 @router.post("/", response_model=CustomerResponse)
 def add_customer(customer: CustomerCreate, db: Session = Depends(get_db)):
@@ -28,6 +31,10 @@ def read_customers(
     name: str | None = None,
     phone: str | None = None,
     email: str | None = None,
+    page: int = 1,
+    limit: int = 10,
+    sort_by: str = "id",
+    order: str = "asc",
     db: Session = Depends(get_db),
 ):
     return get_customers(
@@ -35,8 +42,11 @@ def read_customers(
         name=name,
         phone=phone,
         email=email,
+        page=page,
+        limit=limit,
+        sort_by=sort_by,
+        order=order,
     )
-    return get_customer_by_id(db, customer_id)
 
 @router.put("/{customer_id}", response_model=CustomerResponse)
 def edit_customer(
