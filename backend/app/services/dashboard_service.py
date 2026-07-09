@@ -10,7 +10,14 @@ from app.models.payment import Payment
 from app.models.quotation import Quotation
 
 from app.repositories.dashboard_repository import (
-    get_pending_payment_list,
+    get_total_customers,
+    get_total_enquiries,
+    get_total_quotations,
+    get_total_bookings,
+    get_total_payments,
+    get_total_revenue,
+    get_pending_revenue,
+    
 )
 
 from app.schemas.dashboard import (
@@ -19,56 +26,34 @@ from app.schemas.dashboard import (
     UpcomingEvent, PendingPayment  
 )
 
-from app.repositories.dashboard_repository import (
-    get_total_customers,
-    get_today_event_count,
-)
-
 
 def get_dashboard(db: Session):
 
     total_customers = get_total_customers(db)
 
-    total_enquiries = (
-        db.query(func.count(Enquiry.id)).scalar()
-        or 0
-    )
+    total_enquiries = get_total_enquiries(db)
 
-    total_quotations = (
-        db.query(func.count(Quotation.id)).scalar()
-        or 0
-    )
+    total_quotations = get_total_quotations(db)
 
-    total_bookings = (
-        db.query(func.count(Booking.id)).scalar()
-        or 0
-    )
+    total_bookings = get_total_bookings(db)
 
-    total_payments = (
-        db.query(func.count(Payment.id)).scalar()
-        or 0
-    )
+    total_payments = get_total_payments(db)
 
-    total_revenue = (
-        db.query(func.sum(Payment.amount)).scalar()
-        or 0
-    )
+    total_revenue = get_total_revenue(db)
 
-    pending_payments = (
-        (
-            db.query(func.sum(Quotation.final_amount)).scalar()
-            or 0
-        )
-        - total_revenue
-    )
+    pending_payments = get_pending_revenue(db)
 
     today = date.today()
 
     # Today's Events Count
-    today_events = get_today_event_count(
-    db,
-    today,
+    today_events = (
+    db.query(Booking)
+    .filter(
+        func.date(Booking.event_start) == today
+    )
+    .count()
 )
+
 
     # Today's Event List
     today_event_rows = (
@@ -159,8 +144,6 @@ def get_dashboard(db: Session):
         .count()
     )
 
-    pending_payment_rows = get_pending_payment_list(db)
-
     return DashboardResponse(
     total_customers=total_customers,
     total_enquiries=total_enquiries,
@@ -195,19 +178,4 @@ def get_dashboard(db: Session):
         )
         for row in upcoming_event_rows
     ],
-
-    
-
-    pending_payment_list=[
-    PendingPayment(
-        booking_code=row.booking_code,
-        customer_name=row.name,
-        event_type=row.event_type,
-        total_amount=row.final_amount,
-        paid_amount=row.paid,
-        remaining_amount=row.final_amount - row.paid,
-    )
-    for row in pending_payment_rows
-],
 )
-
