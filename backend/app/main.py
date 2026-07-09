@@ -1,24 +1,33 @@
 from fastapi import FastAPI
 
-from app.api.customer import router as customer_router
-from app.api.booking import router as booking_router
-
 from app.db.database import Base, engine
 
-from app.api.enquiry import router as enquiry_router
+# Import models (IMPORTANT)
+from app.models.customer import Customer
 from app.models.enquiry import Enquiry
-
-from app.api.quotation import router as quotation_router
 from app.models.quotation import Quotation
+from app.models.booking import Booking
+from app.models.payment import Payment
+
+# Import routers
+from app.api.customer import router as customer_router
+from app.api.dashboard import router as dashboard_router
+from app.api.enquiry import router as enquiry_router
+from app.api.quotation import router as quotation_router
+from app.api.booking import router as booking_router
+from app.api.payment import router as payment_router
 
 app = FastAPI(title="BizPart Bot")
 
 Base.metadata.create_all(bind=engine)
 
 app.include_router(customer_router)
-app.include_router(booking_router)
 app.include_router(enquiry_router)
 app.include_router(quotation_router)
+app.include_router(booking_router)
+app.include_router(payment_router)
+app.include_router(dashboard_router)
+
 
 @app.get("/")
 def root():

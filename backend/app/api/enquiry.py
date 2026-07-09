@@ -2,10 +2,17 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-from app.schemas.enquiry import EnquiryCreate, EnquiryResponse
+from app.schemas.enquiry import (
+    EnquiryCreate,
+    EnquiryUpdate,
+    EnquiryResponse,
+)
 from app.services.enquiry_service import (
     create_enquiry,
     get_enquiries,
+    get_enquiry_by_id,
+    update_enquiry,
+    delete_enquiry,
 )
 
 router = APIRouter(
@@ -27,3 +34,38 @@ def read_enquiries(
     db: Session = Depends(get_db),
 ):
     return get_enquiries(db)
+
+
+@router.get("/{enquiry_id}", response_model=EnquiryResponse)
+def read_enquiry(
+    enquiry_id: int,
+    db: Session = Depends(get_db),
+):
+    return get_enquiry_by_id(
+        db,
+        enquiry_id,
+    )
+
+
+@router.put("/{enquiry_id}", response_model=EnquiryResponse)
+def edit_enquiry(
+    enquiry_id: int,
+    enquiry: EnquiryUpdate,
+    db: Session = Depends(get_db),
+):
+    return update_enquiry(
+        db,
+        enquiry_id,
+        enquiry,
+    )
+
+
+@router.delete("/{enquiry_id}")
+def remove_enquiry(
+    enquiry_id: int,
+    db: Session = Depends(get_db),
+):
+    return delete_enquiry(
+        db,
+        enquiry_id,
+    )

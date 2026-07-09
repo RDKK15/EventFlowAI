@@ -7,6 +7,12 @@ class CustomerCreate(BaseModel):
     email: EmailStr | None = None
 
 
+class CustomerUpdate(BaseModel):
+    name: str
+    phone: str
+    email: EmailStr | None = None
+
+
 class CustomerResponse(CustomerCreate):
     id: int
     customer_code: str

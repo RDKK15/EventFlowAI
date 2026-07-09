@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Date
+from sqlalchemy.orm import relationship
 from app.db.database import Base
 
 
@@ -22,3 +23,13 @@ class Quotation(Base):
     status = Column(String, default="Draft")
 
     notes = Column(String)
+
+    enquiry = relationship(
+        "Enquiry",
+        back_populates="quotations"
+)
+    booking = relationship(
+        "Booking",
+        back_populates="quotation",
+        uselist=False
+)

@@ -1,5 +1,16 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Float,
+    DateTime,
+    ForeignKey,
+    Enum,
+)
+from sqlalchemy.orm import relationship
+
 from app.db.database import Base
+from app.enums.booking import BookingStatus
 
 
 class Booking(Base):
@@ -26,6 +37,20 @@ class Booking(Base):
     teardown_start = Column(DateTime)
     teardown_end = Column(DateTime)
 
-    booking_status = Column(String, default="Proposal")
+    booking_status = Column(
+        Enum(BookingStatus),
+        default=BookingStatus.PROPOSAL,
+        nullable=False,
+    )
 
     notes = Column(String)
+
+    quotation = relationship(
+        "Quotation",
+        back_populates="booking"
+    )
+
+    payments = relationship(
+        "Payment",
+        back_populates="booking"
+    )

@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Date
+from sqlalchemy.orm import relationship
 from app.db.database import Base
 
 
@@ -8,6 +9,8 @@ class Enquiry(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     customer_id = Column(Integer, ForeignKey("customers.id"))
+
+    enquiry_code = Column(String, unique=True, index=True)
 
     event_type = Column(String, nullable=False)
 
@@ -34,3 +37,14 @@ class Enquiry(Base):
     stage = Column(String, default="New")
 
     notes = Column(String)
+
+    customer = relationship(
+        "Customer",
+        back_populates="enquiries"
+    )
+
+    quotations = relationship(
+        "Quotation",
+        back_populates="enquiry"
+    )
+    
