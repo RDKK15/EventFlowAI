@@ -24,14 +24,18 @@ def add_customer(customer: CustomerCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=list[CustomerResponse])
-def read_customers(db: Session = Depends(get_db)):
-    return get_customers(db)
-
-@router.get("/{customer_id}", response_model=CustomerResponse)
-def read_customer(
-    customer_id: int,
+def read_customers(
+    name: str | None = None,
+    phone: str | None = None,
+    email: str | None = None,
     db: Session = Depends(get_db),
 ):
+    return get_customers(
+        db,
+        name=name,
+        phone=phone,
+        email=email,
+    )
     return get_customer_by_id(db, customer_id)
 
 @router.put("/{customer_id}", response_model=CustomerResponse)

@@ -53,8 +53,31 @@ def create_customer(db: Session, customer: CustomerCreate):
     return new_customer
 
 
-def get_customers(db: Session):
-    return db.query(Customer).all()
+def get_customers(
+    db: Session,
+    name: str | None = None,
+    phone: str | None = None,
+    email: str | None = None,
+):
+
+    query = db.query(Customer)
+
+    if name:
+        query = query.filter(
+            Customer.name.ilike(f"%{name}%")
+        )
+
+    if phone:
+        query = query.filter(
+            Customer.phone.ilike(f"%{phone}%")
+        )
+
+    if email:
+        query = query.filter(
+            Customer.email.ilike(f"%{email}%")
+        )
+
+    return query.all()
 
 def get_customer_by_id(db: Session, customer_id: int):
 
