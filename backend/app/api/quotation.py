@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from app.auth.oauth2 import get_current_user
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
@@ -15,9 +16,11 @@ from app.services.quotation_service import (
     delete_quotation,
 )
 
+
 router = APIRouter(
     prefix="/quotations",
     tags=["Quotations"],
+    dependencies=[Depends(get_current_user)],
 )
 
 

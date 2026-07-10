@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from app.auth.oauth2 import get_current_user
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
@@ -18,6 +19,7 @@ from app.services.payment_service import (
 router = APIRouter(
     prefix="/payments",
     tags=["Payments"],
+    dependencies=[Depends(get_current_user)],
 )
 
 

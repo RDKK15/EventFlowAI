@@ -18,7 +18,14 @@ from app.services.customer_service import (
 from app.auth.oauth2 import get_current_user
 from app.models.user import User
 
-router = APIRouter(prefix="/customers", tags=["Customers"])
+from fastapi import Depends
+from app.auth.oauth2 import get_current_user
+
+router = APIRouter(
+    prefix="/customers",
+    tags=["Customers"],
+    dependencies=[Depends(get_current_user)],
+)
 
 sort_by: str = "id",
 order: str = "asc",
@@ -31,7 +38,6 @@ def add_customer(customer: CustomerCreate, db: Session = Depends(get_db)):
 
 @router.get("/", response_model=list[CustomerResponse])
 def read_customers(
-    current_user: User = Depends(get_current_user),
     name: str | None = None,
     phone: str | None = None,
     email: str | None = None,
