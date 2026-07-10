@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from app.enums.user import UserRole
 
 from app.models.user import User
 from app.schemas.user import UserCreate
@@ -44,7 +45,7 @@ def create_user(
         hashed_password=hash_password(
             user.password
         ),
-        role="Owner",
+        role=user.role,
         is_active=True,
     )
 

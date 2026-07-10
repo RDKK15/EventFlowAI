@@ -7,6 +7,9 @@ from sqlalchemy import (
 
 from app.db.database import Base
 
+from sqlalchemy import Enum
+from app.enums.user import UserRole
+
 
 class User(Base):
     __tablename__ = "users"
@@ -36,9 +39,10 @@ class User(Base):
     )
 
     role = Column(
-        String,
-        default="Staff",
-    )
+    Enum(UserRole),
+    default=UserRole.STAFF,
+    nullable=False,
+)
 
     is_active = Column(
         Boolean,

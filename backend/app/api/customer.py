@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.auth.permissions import require_owner
+from app.models.user import User
+
 from app.db.database import get_db
 from app.schemas.customer import (
     CustomerCreate,
@@ -74,8 +77,6 @@ def edit_customer(
 def remove_customer(
     customer_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_owner),
 ):
-    return delete_customer(
-        db,
-        customer_id,
-    )
+    return delete_customer(db, customer_id)
