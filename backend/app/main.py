@@ -20,6 +20,7 @@ from app.api.payment import router as payment_router
 from app.models.user import User
 
 from app.api.auth import router as auth_router
+from app.api.user import router as user_router
 
 app = FastAPI(title="BizPart Bot")
 
@@ -32,6 +33,7 @@ app.include_router(booking_router)
 app.include_router(payment_router)
 app.include_router(dashboard_router)
 app.include_router(auth_router)
+app.include_router(user_router)
 
 
 @app.get("/")

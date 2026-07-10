@@ -19,5 +19,11 @@ class UserResponse(BaseModel):
     role: UserRole
     is_active: bool
 
+class UserUpdate(BaseModel):
+    username: str
+    email: str
+    role: UserRole
+    is_active: bool
+
     class Config:
         from_attributes = True

@@ -38,9 +38,13 @@ class User(Base):
         nullable=False,
     )
 
+
     role = Column(
-    Enum(UserRole),
-    default=UserRole.STAFF,
+    Enum(
+        UserRole,
+        values_callable=lambda enum: [e.value for e in enum],
+    ),
+    default=UserRole.STAFF.value,
     nullable=False,
 )
 
