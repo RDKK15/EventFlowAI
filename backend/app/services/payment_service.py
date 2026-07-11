@@ -11,8 +11,16 @@ from app.schemas.payment import (
 )
 from app.utils.code_generator import generate_code
 
+from app.utils.query_utils import (
+    apply_sorting,
+    apply_pagination,
+)
 
-def create_payment(db: Session, payment: PaymentCreate):
+
+def create_payment(
+    db: Session,
+    payment: PaymentCreate,
+):
 
     booking = (
         db.query(Booking)
@@ -82,14 +90,101 @@ def create_payment(db: Session, payment: PaymentCreate):
     return new_payment
 
 
-def get_payments(db: Session):
-    return db.query(Payment).all()
+def get_payments(
+    db: Session,
+    payment_code: str | None = None,
+    payment_method=None,
+    payment_type=None,
+    amount_min: float | None = None,
+    amount_max: float | None = None,
+    payment_date_from=None,
+    payment_date_to=None,
+    received_by: str | None = None,
+    page: int = 1,
+    limit: int = 10,
+    sort_by: str = "id",
+    order: str = "asc",
+):
+
+    query = db.query(Payment)
+
+    # Payment Code
+    if payment_code:
+        query = query.filter(
+            Payment.payment_code.ilike(f"%{payment_code}%")
+        )
+
+    # Payment Method
+    if payment_method:
+        query = query.filter(
+            Payment.payment_method == payment_method
+        )
+
+    # Payment Type
+    if payment_type:
+        query = query.filter(
+            Payment.payment_type == payment_type
+        )
+
+    # Received By
+    if received_by:
+        query = query.filter(
+            Payment.received_by.ilike(f"%{received_by}%")
+        )
+
+    # Amount Min
+    if amount_min is not None:
+        query = query.filter(
+            Payment.amount >= amount_min
+        )
+
+    # Amount Max
+    if amount_max is not None:
+        query = query.filter(
+            Payment.amount <= amount_max
+        )
+
+    # Payment Date From
+    if payment_date_from:
+        query = query.filter(
+            Payment.payment_date >= payment_date_from
+        )
+
+    # Payment Date To
+    if payment_date_to:
+        query = query.filter(
+            Payment.payment_date <= payment_date_to
+        )
+
+    allowed_columns = {
+        "id": Payment.id,
+        "payment_code": Payment.payment_code,
+        "amount": Payment.amount,
+        "payment_date": Payment.payment_date,
+        "received_by": Payment.received_by,
+    }
+
+    query = apply_sorting(
+        query,
+        allowed_columns,
+        sort_by,
+        order,
+    )
+
+    query = apply_pagination(
+        query,
+        page,
+        limit,
+    )
+
+    return query.all()
 
 
 def get_payment_by_id(
     db: Session,
     payment_id: int,
 ):
+
     payment = (
         db.query(Payment)
         .filter(Payment.id == payment_id)
@@ -104,12 +199,12 @@ def get_payment_by_id(
 
     return payment
 
-
 def update_payment(
     db: Session,
     payment_id: int,
     payment_data: PaymentUpdate,
 ):
+
     payment = (
         db.query(Payment)
         .filter(Payment.id == payment_id)
@@ -186,6 +281,7 @@ def delete_payment(
     db: Session,
     payment_id: int,
 ):
+
     payment = (
         db.query(Payment)
         .filter(Payment.id == payment_id)

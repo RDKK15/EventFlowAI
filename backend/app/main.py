@@ -12,6 +12,8 @@ from app.models.quotation import Quotation
 from app.models.booking import Booking
 from app.models.payment import Payment
 from app.models.user import User
+from app.models.business import Business
+from app.models.business_sequence import BusinessSequence
 
 # Import routers
 from app.api.customer import router as customer_router
@@ -22,6 +24,7 @@ from app.api.booking import router as booking_router
 from app.api.payment import router as payment_router
 from app.api.auth import router as auth_router
 from app.api.user import router as user_router
+from app.api.business import router as business_router
 
 
 @asynccontextmanager
@@ -29,7 +32,7 @@ async def lifespan(app: FastAPI):
     print("🚀 Starting BizPart AI...")
 
     # Create tables
-    Base.metadata.create_all(bind=engine)
+
 
     # Create default owner
     db = SessionLocal()
@@ -58,6 +61,7 @@ app.include_router(payment_router)
 app.include_router(dashboard_router)
 app.include_router(auth_router)
 app.include_router(user_router)
+app.include_router(business_router)
 
 
 @app.get("/")

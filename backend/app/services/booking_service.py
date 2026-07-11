@@ -9,6 +9,11 @@ from app.schemas.booking import (
 )
 from app.utils.code_generator import generate_code
 
+from app.utils.query_utils import (
+    apply_sorting,
+    apply_pagination,
+)
+
 
 def create_booking(db: Session, booking: BookingCreate):
 
@@ -73,8 +78,73 @@ def create_booking(db: Session, booking: BookingCreate):
     return new_booking
 
 
-def get_bookings(db: Session):
-    return db.query(Booking).all()
+def get_bookings(
+    db: Session,
+    booking_code: str | None = None,
+    venue_name: str | None = None,
+    booking_status: str | None = None,
+    event_start_from=None,
+    event_start_to=None,
+    page: int = 1,
+    limit: int = 10,
+    sort_by: str = "id",
+    order: str = "asc",
+):
+
+    query = db.query(Booking)
+
+    # Booking Code
+    if booking_code:
+        query = query.filter(
+            Booking.booking_code.ilike(f"%{booking_code}%")
+        )
+
+    # Venue
+    if venue_name:
+        query = query.filter(
+            Booking.venue_name.ilike(f"%{venue_name}%")
+        )
+
+    # Status
+    if booking_status:
+        query = query.filter(
+            Booking.booking_status == booking_status
+        )
+
+    # Event Date From
+    if event_start_from:
+        query = query.filter(
+            Booking.event_start >= event_start_from
+        )
+
+    # Event Date To
+    if event_start_to:
+        query = query.filter(
+            Booking.event_start <= event_start_to
+        )
+
+    allowed_columns = {
+        "id": Booking.id,
+        "booking_code": Booking.booking_code,
+        "venue_name": Booking.venue_name,
+        "event_start": Booking.event_start,
+        "advance_paid": Booking.advance_paid,
+    }
+
+    query = apply_sorting(
+        query,
+        allowed_columns,
+        sort_by,
+        order,
+    )
+
+    query = apply_pagination(
+        query,
+        page,
+        limit,
+    )
+
+    return query.all()
 
 
 def get_booking_by_id(

@@ -5,6 +5,10 @@ from app.models.enquiry import Enquiry
 from app.schemas.enquiry import EnquiryCreate, EnquiryUpdate
 from app.utils.code_generator import generate_code
 
+from app.utils.query_utils import (
+    apply_sorting,
+    apply_pagination,
+)
 
 def create_enquiry(db: Session, enquiry: EnquiryCreate):
 
@@ -40,8 +44,76 @@ def create_enquiry(db: Session, enquiry: EnquiryCreate):
     return new_enquiry
 
 
-def get_enquiries(db: Session):
-    return db.query(Enquiry).all()
+def get_enquiries(
+    db: Session,
+    event_type: str | None = None,
+    venue_name: str | None = None,
+    budget_min: float | None = None,
+    budget_max: float | None = None,
+    page: int = 1,
+    limit: int = 10,
+    sort_by: str = "id",
+    order: str = "asc",
+):
+
+    query = db.query(Enquiry)
+
+    # Event Type Search
+    if event_type:
+        query = query.filter(
+            Enquiry.event_type.ilike(f"%{event_type}%")
+        )
+
+    # Venue Search
+    if venue_name:
+        query = query.filter(
+            Enquiry.venue_name.ilike(f"%{venue_name}%")
+        )
+
+    # Minimum Budget
+    if budget_min is not None:
+        query = query.filter(
+            Enquiry.budget_min >= budget_min
+        )
+
+    # Maximum Budget
+    if budget_max is not None:
+        query = query.filter(
+            Enquiry.budget_max <= budget_max
+        )
+
+    # Allowed Sorting Columns
+    allowed_columns = {
+        "id": Enquiry.id,
+        "event_type": Enquiry.event_type,
+        "preferred_date": Enquiry.preferred_date,
+        "budget_min": Enquiry.budget_min,
+        "budget_max": Enquiry.budget_max,
+    }
+
+    query = apply_sorting(
+    query,
+    allowed_columns,
+    sort_by,
+    order,
+)
+
+    query = apply_pagination(
+    query,
+    page,
+    limit,
+)
+
+    if order.lower() == "desc":
+        query = query.order_by(column.desc())
+    else:
+        query = query.order_by(column.asc())
+
+    # Pagination
+    offset = (page - 1) * limit
+    query = query.offset(offset).limit(limit)
+
+    return query.all()
 
 
 def get_enquiry_by_id(

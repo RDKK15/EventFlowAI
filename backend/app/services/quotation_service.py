@@ -9,6 +9,11 @@ from app.schemas.quotation import (
 )
 from app.utils.code_generator import generate_code
 
+from app.utils.query_utils import (
+    apply_sorting,
+    apply_pagination,
+)
+
 
 def create_quotation(db: Session, quotation: QuotationCreate):
 
@@ -68,8 +73,83 @@ def create_quotation(db: Session, quotation: QuotationCreate):
     return new_quotation
 
 
-def get_quotations(db: Session):
-    return db.query(Quotation).all()
+def get_quotations(
+    db: Session,
+    quotation_code: str | None = None,
+    status: str | None = None,
+    amount_min: int | None = None,
+    amount_max: int | None = None,
+    valid_until_from=None,
+    valid_until_to=None,
+    page: int = 1,
+    limit: int = 10,
+    sort_by: str = "id",
+    order: str = "asc",
+):
+
+    query = db.query(Quotation)
+
+    # Quotation Code Search
+    if quotation_code:
+        query = query.filter(
+            Quotation.quotation_code.ilike(f"%{quotation_code}%")
+        )
+
+    # Status Search
+    if status:
+        query = query.filter(
+            Quotation.status.ilike(f"%{status}%")
+        )
+
+    # Minimum Amount
+    if amount_min is not None:
+        query = query.filter(
+            Quotation.final_amount >= amount_min
+        )
+
+    # Maximum Amount
+    if amount_max is not None:
+        query = query.filter(
+            Quotation.final_amount <= amount_max
+        )
+
+    # Valid Until From
+    if valid_until_from:
+        query = query.filter(
+            Quotation.valid_until >= valid_until_from
+        )
+
+    # Valid Until To
+    if valid_until_to:
+        query = query.filter(
+            Quotation.valid_until <= valid_until_to
+        )
+
+    # Allowed Sorting Columns
+    allowed_columns = {
+        "id": Quotation.id,
+        "quotation_code": Quotation.quotation_code,
+        "total_amount": Quotation.total_amount,
+        "discount": Quotation.discount,
+        "final_amount": Quotation.final_amount,
+        "valid_until": Quotation.valid_until,
+        "status": Quotation.status,
+    }
+
+    query = apply_sorting(
+        query,
+        allowed_columns,
+        sort_by,
+        order,
+    )
+
+    query = apply_pagination(
+        query,
+        page,
+        limit,
+    )
+
+    return query.all()
 
 
 def get_quotation_by_id(

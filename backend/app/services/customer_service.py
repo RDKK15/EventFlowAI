@@ -5,6 +5,11 @@ from app.models.customer import Customer
 from app.schemas.customer import CustomerCreate, CustomerUpdate
 from app.utils.code_generator import generate_code
 
+from app.utils.query_utils import (
+    apply_sorting,
+    apply_pagination,
+)
+
 
 def create_customer(db: Session, customer: CustomerCreate):
 
@@ -83,24 +88,27 @@ def get_customers(
             Customer.email.ilike(f"%{email}%")
         )
 
-    # Sorting
+    # Allowed sorting columns
     allowed_columns = {
         "id": Customer.id,
         "name": Customer.name,
         "phone": Customer.phone,
     }
 
-    column = allowed_columns.get(sort_by, Customer.id)
+    # Apply sorting
+    query = apply_sorting(
+        query,
+        allowed_columns,
+        sort_by,
+        order,
+    )
 
-    if order.lower() == "desc":
-        query = query.order_by(column.desc())
-    else:
-        query = query.order_by(column.asc())
-
-    # Pagination
-    offset = (page - 1) * limit
-
-    query = query.offset(offset).limit(limit)
+    # Apply pagination
+    query = apply_pagination(
+        query,
+        page,
+        limit,
+    )
 
     return query.all()
 
