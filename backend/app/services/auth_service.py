@@ -1,6 +1,5 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from app.enums.user import UserRole
 
 from app.models.user import User
 from app.schemas.user import UserCreate
@@ -24,7 +23,7 @@ def create_user(
     if existing_user:
         raise HTTPException(
             status_code=400,
-            detail="Username already exists."
+            detail="Username already exists.",
         )
 
     existing_email = (
@@ -36,16 +35,14 @@ def create_user(
     if existing_email:
         raise HTTPException(
             status_code=400,
-            detail="Email already exists."
+            detail="Email already exists.",
         )
 
     new_user = User(
+        name=user.name,
         username=user.username,
         email=user.email,
-        hashed_password=hash_password(
-            user.password
-        ),
-        role=user.role,
+        hashed_password=hash_password(user.password),
         is_active=True,
     )
 

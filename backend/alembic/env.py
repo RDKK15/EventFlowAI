@@ -15,7 +15,13 @@ from app.models.booking import Booking
 from app.models.payment import Payment
 from app.models.user import User
 from app.models.business import Business
+from app.models.business_user import BusinessUser
 from app.models.business_sequence import BusinessSequence
+
+from app.models.service_type import ServiceType
+
+from app.models.requirement_definition import RequirementDefinition
+from app.models.requirement_option import RequirementOption
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

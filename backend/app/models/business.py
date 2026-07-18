@@ -51,12 +51,16 @@ class Business(Base):
         nullable=False,
     )
 
-    users = relationship(
-        "User",
+    business_users = relationship(
+        "BusinessUser",
         back_populates="business",
     )
 
     sequences = relationship(
         "BusinessSequence",
+        back_populates="business",
+    )
+    service_types = relationship(
+       "ServiceType",
         back_populates="business",
     )

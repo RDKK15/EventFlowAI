@@ -13,7 +13,11 @@ from app.models.booking import Booking
 from app.models.payment import Payment
 from app.models.user import User
 from app.models.business import Business
+from app.models.business_user import BusinessUser
 from app.models.business_sequence import BusinessSequence
+from app.models.service_type import ServiceType
+from app.models.requirement_definition import RequirementDefinition
+from app.models.requirement_option import RequirementOption
 
 # Import routers
 from app.api.customer import router as customer_router
@@ -25,6 +29,7 @@ from app.api.payment import router as payment_router
 from app.api.auth import router as auth_router
 from app.api.user import router as user_router
 from app.api.business import router as business_router
+from app.api.business_configuration import router as business_configuration_router
 
 
 @asynccontextmanager
@@ -62,6 +67,7 @@ app.include_router(dashboard_router)
 app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(business_router)
+app.include_router(business_configuration_router)
 
 
 @app.get("/")

@@ -9,7 +9,7 @@ from app.services.business_service import (
     get_businesses,
     get_business_by_id,
 )
-from app.services.user_service import (
+from app.services.business_user_service import (
     create_business_user,
     get_users_by_business,
 )
